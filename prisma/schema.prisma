@@ -1,0 +1,143 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   // ADMIN, TEACHER, STUDENT, MODERATOR
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Teacher {
+  id          String   @id @default(cuid())
+  name        String
+  role        String   // Designation
+  image       String?
+  phone       String?
+  email       String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Student {
+  id          String   @id @default(cuid())
+  name        String
+  studentId   String   @unique
+  roll        String
+  class       String
+  image       String?
+  phone       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Notice {
+  id        String   @id @default(cuid())
+  title     String
+  content   String?
+  date      DateTime @default(now())
+  isEmergency Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  date        String
+  time        String?
+  location    String?
+  image       String?
+  isPast      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model GalleryImage {
+  id        String   @id @default(cuid())
+  url       String
+  caption   String?
+  category  String?
+  createdAt DateTime @default(now())
+}
+
+model Result {
+  id          String   @id @default(cuid())
+  studentId   String
+  examType    String
+  year        String
+  class       String
+  gpa         String
+  subjects    String   // JSON string of subject results
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Alumni {
+  id          String   @id @default(cuid())
+  name        String
+  batch       String
+  designation String?
+  image       String?
+  message     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BlogPost {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  image     String?
+  author    String
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  text      String
+  author    String
+  role      String?
+  createdAt DateTime @default(now())
+}
+
+model GoverningBodyMember {
+  id          String   @id @default(cuid())
+  name        String
+  designation String
+  image       String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SiteConfig {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model ImportantLink {
+  id        String   @id @default(cuid())
+  name      String
+  url       String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+}
