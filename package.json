@@ -1,8 +1,12 @@
 {
-  "name": "react-example",
+  "name": "dphs-school",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mojibrsmapp/dphs-school.git"
+  },
   "scripts": {
     "dev": "tsx server.ts",
     "build": "vite build",

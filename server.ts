@@ -184,7 +184,12 @@ app.post("/api/upload", authenticate, upload.single("file"), (req, res) => {
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: { 
+        middlewareMode: true,
+        hmr: {
+          port: Number(process.env.VMR_PORT || process.env.HMR_PORT) || 24679
+        }
+      },
       appType: "spa",
     });
     app.use(vite.middlewares);

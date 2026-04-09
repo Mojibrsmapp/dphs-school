@@ -1,4 +1,5 @@
 # Dechua Palong High School (DPHS) - Full Stack Web Application
+Official Repository: [https://github.com/Mojibrsmapp/dphs-school](https://github.com/Mojibrsmapp/dphs-school)
 
 This is a full-stack web application built with React (Vite), Express, and Prisma (MySQL/SQLite).
 
@@ -50,29 +51,30 @@ npx prisma generate
 npx prisma db push
 ```
 
-### 6. Build and Start
+### 6. Build and Start (Production Mode)
+For best performance and to avoid port conflicts on a VPS, always run in production mode:
 ```bash
 npm run build
-npm start
+NODE_ENV=production npm start
 ```
 
 ### 7. PM2 (Recommended for Production)
 To keep the app running in the background:
 ```bash
 npm install -g pm2
-pm2 start server.ts --name dphs-app --interpreter tsx
+NODE_ENV=production pm2 start server.ts --name dphs-app --interpreter tsx
 pm2 save
 pm2 startup
 ```
 
 ## Admin Credentials
-After hosting, visit `/admin/login` and click "প্রথমবার? অ্যাডমিন তৈরি করুন" to seed the initial admin account.
+After hosting, visit `/admin/login` and click "প্রথমবার? অ্যাডমিন তৈরি করুন" to seed the initial admin account and demo data.
 - **Email**: `admin@dphs.edu`
 - **Password**: `admin123`
 
 ## Port Configuration
-The app runs on port **3003** by default. You can change this in `.env` or `server.ts`.
-To access it via port 80/443, use Nginx as a reverse proxy.
+- **App Port**: The app runs on port **3003** by default. Change this via `PORT` in `.env`.
+- **HMR Port**: If running in dev mode (`npm run dev`), the WebSocket port defaults to **24679**. Change this via `HMR_PORT` in `.env` if needed.
 
 ## Troubleshooting
 - **Prisma SQLite Error**: If you see "database disk image is malformed" while using SQLite, it's recommended to switch to **MySQL** for production as planned. Update your `DATABASE_URL` in `.env` and run `npx prisma db push` again.
