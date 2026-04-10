@@ -65,55 +65,59 @@ app.post("/api/auth/login", async (req, res) => {
 
 // Seed Admin User and Demo Data
 app.post("/api/auth/seed", async (req, res) => {
-  const count = await prisma.user.count();
-  if (count > 0) return res.status(400).json({ error: "Seed already performed" });
+  try {
+    const count = await prisma.user.count();
+    if (count > 0) return res.status(400).json({ error: "Seed already performed" });
 
-  const hashedPassword = await bcrypt.hash("admin123", 10);
-  
-  // Create Admin
-  const admin = await prisma.user.create({
-    data: {
-      email: "admin@dphs.edu",
-      password: hashedPassword,
-      name: "Admin",
-      role: "ADMIN",
-    },
-  });
+    const hashedPassword = await bcrypt.hash("admin123", 10);
+    
+    // Create Admin
+    const admin = await prisma.user.create({
+      data: {
+        email: "admin@dphs.edu",
+        password: hashedPassword,
+        name: "Admin",
+        role: "ADMIN",
+      },
+    });
 
-  // Create Demo Teachers
-  await prisma.teacher.createMany({
-    data: [
-      { name: "MD. OSMAN GANI", role: "প্রধান শিক্ষক", image: "https://image.mojib.me/uploads/school/1775741426_Head%20sir.png", order: 1 },
-      { name: "MD. KUTUB UDDIN", role: "সহকারী প্রধান শিক্ষক", image: "https://image.mojib.me/uploads/school/1775741682_Kutub%20Uddin.png", order: 2 },
-      { name: "SALEH AHMAD", role: "ইসলাম ধর্ম শিক্ষক", image: "https://static.vecteezy.com/system/resources/previews/051/718/779/non_2x/colorful-3d-cartoon-teacher-education-free-png.png", order: 3 },
-    ]
-  });
+    // Create Demo Teachers
+    await prisma.teacher.createMany({
+      data: [
+        { name: "MD. OSMAN GANI", role: "প্রধান শিক্ষক", image: "https://image.mojib.me/uploads/school/1775741426_Head%20sir.png", order: 1 },
+        { name: "MD. KUTUB UDDIN", role: "সহকারী প্রধান শিক্ষক", image: "https://image.mojib.me/uploads/school/1775741682_Kutub%20Uddin.png", order: 2 },
+        { name: "SALEH AHMAD", role: "ইসলাম ধর্ম শিক্ষক", image: "https://static.vecteezy.com/system/resources/previews/051/718/779/non_2x/colorful-3d-cartoon-teacher-education-free-png.png", order: 3 },
+      ]
+    });
 
-  // Create Demo Notices
-  await prisma.notice.createMany({
-    data: [
-      { title: "বার্ষিক ক্রীড়া প্রতিযোগিতা ২০২৬", date: new Date("2026-04-25"), isEmergency: true },
-      { title: "বার্ষিক সাংস্কৃতিক অনুষ্ঠান", date: new Date("2026-03-15") },
-      { title: "বিজ্ঞান মেলা ও প্রদর্শনী", date: new Date("2026-02-10") },
-    ]
-  });
+    // Create Demo Notices
+    await prisma.notice.createMany({
+      data: [
+        { title: "বার্ষিক ক্রীড়া প্রতিযোগিতা ২০২৬", date: new Date("2026-04-25"), isEmergency: true },
+        { title: "বার্ষিক সাংস্কৃতিক অনুষ্ঠান", date: new Date("2026-03-15") },
+        { title: "বিজ্ঞান মেলা ও প্রদর্শনী", date: new Date("2026-02-10") },
+      ]
+    });
 
-  // Create Demo Events
-  await prisma.event.createMany({
-    data: [
-      { title: "বার্ষিক ক্রীড়া প্রতিযোগিতা", date: "২৫শে এপ্রিল, ২০২৬", location: "স্কুল মাঠ" },
-    ]
-  });
+    // Create Demo Events
+    await prisma.event.createMany({
+      data: [
+        { title: "বার্ষিক ক্রীড়া প্রতিযোগিতা", date: "২৫শে এপ্রিল, ২০২৬", location: "স্কুল মাঠ" },
+      ]
+    });
 
-  // Create Demo Links
-  await prisma.importantLink.createMany({
-    data: [
-      { name: "শিক্ষা বোর্ড", url: "http://www.educationboard.gov.bd/", order: 1 },
-      { name: "মাউশি", url: "http://www.dshe.gov.bd/", order: 2 },
-    ]
-  });
+    // Create Demo Links
+    await prisma.importantLink.createMany({
+      data: [
+        { name: "শিক্ষা বোর্ড", url: "http://www.educationboard.gov.bd/", order: 1 },
+        { name: "মাউশি", url: "http://www.dshe.gov.bd/", order: 2 },
+      ]
+    });
 
-  res.json({ message: "Admin and Demo data seeded successfully" });
+    res.json({ message: "Admin and Demo data seeded successfully" });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Generic CRUD helper
@@ -121,23 +125,39 @@ const createCrudRoutes = (modelName: string, pathName: string) => {
   const model = (prisma as any)[modelName];
 
   app.get(`/api/${pathName}`, async (req, res) => {
-    const data = await model.findMany({ orderBy: { createdAt: "desc" } });
-    res.json(data);
+    try {
+      const data = await model.findMany({ orderBy: { createdAt: "desc" } });
+      res.json(data);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
   });
 
   app.post(`/api/${pathName}`, authenticate, async (req, res) => {
-    const data = await model.create({ data: req.body });
-    res.json(data);
+    try {
+      const data = await model.create({ data: req.body });
+      res.json(data);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
   });
 
   app.put(`/api/${pathName}/:id`, authenticate, async (req, res) => {
-    const data = await model.update({ where: { id: req.params.id }, data: req.body });
-    res.json(data);
+    try {
+      const data = await model.update({ where: { id: req.params.id }, data: req.body });
+      res.json(data);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
   });
 
   app.delete(`/api/${pathName}/:id`, authenticate, async (req, res) => {
-    await model.delete({ where: { id: req.params.id } });
-    res.json({ success: true });
+    try {
+      await model.delete({ where: { id: req.params.id } });
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
   });
 };
 
@@ -156,22 +176,30 @@ createCrudRoutes("importantLink", "links");
 
 // Site Config routes
 app.get("/api/config", async (req, res) => {
-  const config = await prisma.siteConfig.findMany();
-  const configMap = config.reduce((acc: any, curr) => {
-    acc[curr.key] = curr.value;
-    return acc;
-  }, {});
-  res.json(configMap);
+  try {
+    const config = await prisma.siteConfig.findMany();
+    const configMap = config.reduce((acc: any, curr) => {
+      acc[curr.key] = curr.value;
+      return acc;
+    }, {});
+    res.json(configMap);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.post("/api/config", authenticate, async (req, res) => {
-  const { key, value } = req.body;
-  const config = await prisma.siteConfig.upsert({
-    where: { key },
-    update: { value },
-    create: { key, value },
-  });
-  res.json(config);
+  try {
+    const { key, value } = req.body;
+    const config = await prisma.siteConfig.upsert({
+      where: { key },
+      update: { value },
+      create: { key, value },
+    });
+    res.json(config);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // File Upload Route

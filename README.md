@@ -87,6 +87,12 @@ pm2 startup
 - **Port Conflict:** If port 3003 is busy, change `PORT` in `.env`.
 - **WebSocket Error:** If you run in `dev` mode and see port 24678 errors, it's because another app is using it. **Solution:** Always use `NODE_ENV=production npm start` for VPS.
 - **Database Error:** Ensure MySQL is running and the `DATABASE_URL` is correct.
+- **Malformed Database (SQLite):** If you see "database disk image is malformed", run these commands to reset the SQLite database:
+  ```bash
+  rm prisma/dev.db
+  npx prisma db push
+  ```
+  *Note:* This will delete all current data. It's highly recommended to use **MySQL** for production to avoid this.
 
 ---
 Developed by AI Studio Build.
