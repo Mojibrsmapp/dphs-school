@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Outlet, useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   LayoutDashboard, Users, GraduationCap, FileText, 
@@ -8,10 +8,10 @@ import {
 } from 'lucide-react';
 import { api } from '../services/api';
 
-const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState("dashboard");
+export const AdminDashboard = () => {
   const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const storedUser = localStorage.getItem("admin_user");
@@ -29,37 +29,40 @@ const AdminDashboard = () => {
   };
 
   const tabs = [
-    { id: "dashboard", name: "ড্যাশবোর্ড", icon: <LayoutDashboard size={20} /> },
-    { id: "teachers", name: "শিক্ষকবৃন্দ", icon: <Users size={20} /> },
-    { id: "students", name: "শিক্ষার্থী", icon: <GraduationCap size={20} /> },
-    { id: "notices", name: "নোটিশ", icon: <FileText size={20} /> },
-    { id: "events", name: "ইভেন্টস", icon: <Calendar size={20} /> },
-    { id: "gallery", name: "গ্যালারি", icon: <ImageIcon size={20} /> },
-    { id: "links", name: "লিঙ্কস", icon: <LinkIcon size={20} /> },
-    { id: "settings", name: "সেটিংস", icon: <Settings size={20} /> },
+    { id: "dashboard", path: "/admin/dashboard", name: "ড্যাশবোর্ড", icon: <LayoutDashboard size={20} /> },
+    { id: "teachers", path: "/admin/dashboard/teachers", name: "শিক্ষকবৃন্দ", icon: <Users size={20} /> },
+    { id: "students", path: "/admin/dashboard/students", name: "শিক্ষার্থী", icon: <GraduationCap size={20} /> },
+    { id: "notices", path: "/admin/dashboard/notices", name: "নোটিশ", icon: <FileText size={20} /> },
+    { id: "events", path: "/admin/dashboard/events", name: "ইভেন্টস", icon: <Calendar size={20} /> },
+    { id: "gallery", path: "/admin/dashboard/gallery", name: "গ্যালারি", icon: <ImageIcon size={20} /> },
+    { id: "alumni", path: "/admin/dashboard/alumni", name: "প্রাক্তন ছাত্র", icon: <Users size={20} /> },
+    { id: "links", path: "/admin/dashboard/links", name: "লিঙ্কস", icon: <LinkIcon size={20} /> },
+    { id: "settings", path: "/admin/dashboard/settings", name: "সেটিংস", icon: <Settings size={20} /> },
   ];
 
+  const currentPath = location.pathname;
+
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 flex pt-24 lg:pt-0">
       {/* Sidebar */}
-      <div className="w-72 bg-gray-900 text-white flex flex-col">
+      <div className="w-72 bg-gray-900 text-white flex flex-col fixed lg:relative h-screen z-40">
         <div className="p-8 border-b border-white/10">
           <h1 className="text-2xl font-black text-school-secondary">DPHS Admin</h1>
           <p className="text-xs text-gray-400 mt-1">স্বাগতম, {user?.name}</p>
         </div>
         
-        <nav className="flex-grow p-4 space-y-2">
+        <nav className="flex-grow p-4 space-y-2 overflow-y-auto">
           {tabs.map((tab) => (
-            <button
+            <Link
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              to={tab.path}
               className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all ${
-                activeTab === tab.id ? 'bg-school-primary text-white shadow-lg' : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                currentPath === tab.path ? 'bg-school-primary text-white shadow-lg' : 'text-gray-400 hover:bg-white/5 hover:text-white'
               }`}
             >
               {tab.icon}
               {tab.name}
-            </button>
+            </Link>
           ))}
         </nav>
         
@@ -75,32 +78,17 @@ const AdminDashboard = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-grow overflow-y-auto h-screen p-10">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-          >
-            {activeTab === "dashboard" && <DashboardOverview />}
-            {activeTab === "teachers" && <TeachersManager />}
-            {activeTab === "students" && <StudentsManager />}
-            {activeTab === "notices" && <NoticesManager />}
-            {activeTab === "events" && <EventsManager />}
-            {activeTab === "gallery" && <GalleryManager />}
-            {activeTab === "links" && <LinksManager />}
-            {activeTab === "settings" && <SettingsManager />}
-          </motion.div>
-        </AnimatePresence>
+      <div className="flex-grow overflow-y-auto h-screen p-6 lg:p-10">
+        <div className="max-w-7xl mx-auto">
+          <Outlet />
+        </div>
       </div>
     </div>
   );
 };
 
 // Sub-components for each tab
-const DashboardOverview = () => {
+export const DashboardOverview = () => {
   const [stats, setStats] = useState({ teachers: 0, students: 0, notices: 0, events: 0 });
 
   useEffect(() => {
@@ -139,7 +127,7 @@ const DashboardOverview = () => {
   );
 };
 
-const TeachersManager = () => {
+export const TeachersManager = () => {
   const [teachers, setTeachers] = useState<any[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [formData, setFormData] = useState({ name: "", role: "", phone: "", email: "", image: "" });
@@ -271,7 +259,7 @@ const TeachersManager = () => {
 };
 
 // Placeholder for other managers - they follow similar patterns
-const StudentsManager = () => {
+export const StudentsManager = () => {
   const [students, setStudents] = useState<any[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [formData, setFormData] = useState({ name: "", studentId: "", roll: "", class: "", phone: "" });
@@ -394,7 +382,7 @@ const StudentsManager = () => {
   );
 };
 
-const NoticesManager = () => {
+export const NoticesManager = () => {
   const [notices, setNotices] = useState<any[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [formData, setFormData] = useState({ title: "", content: "", isEmergency: false });
@@ -500,7 +488,7 @@ const NoticesManager = () => {
     </div>
   );
 };
-const EventsManager = () => {
+export const EventsManager = () => {
   const [events, setEvents] = useState<any[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [formData, setFormData] = useState({ title: "", date: "", location: "", description: "" });
@@ -605,7 +593,7 @@ const EventsManager = () => {
   );
 };
 
-const GalleryManager = () => {
+export const GalleryManager = () => {
   const [images, setImages] = useState<any[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [formData, setFormData] = useState({ url: "", caption: "", category: "" });
@@ -700,7 +688,118 @@ const GalleryManager = () => {
     </div>
   );
 };
-const LinksManager = () => {
+export const AlumniManager = () => {
+  const [alumni, setAlumni] = useState<any[]>([]);
+  const [isAdding, setIsAdding] = useState(false);
+  const [formData, setFormData] = useState({ name: "", batch: "", designation: "", message: "", image: "" });
+
+  const fetchAlumni = async () => {
+    const data = await api.get("/alumni");
+    setAlumni(data);
+  };
+
+  useEffect(() => { fetchAlumni(); }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await api.post("/alumni", formData);
+    setIsAdding(false);
+    setFormData({ name: "", batch: "", designation: "", message: "", image: "" });
+    fetchAlumni();
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm("আপনি কি নিশ্চিত?")) {
+      await api.delete(`/alumni/${id}`);
+      fetchAlumni();
+    }
+  };
+
+  return (
+    <div className="space-y-8">
+      <div className="flex justify-between items-center">
+        <h2 className="text-4xl font-black text-gray-900">প্রাক্তন ছাত্র-ছাত্রী ব্যবস্থাপনা</h2>
+        <button 
+          onClick={() => setIsAdding(true)}
+          className="bg-school-primary text-white px-8 py-4 rounded-2xl font-black flex items-center gap-2 shadow-xl hover:scale-105 transition-all"
+        >
+          <Plus size={24} /> নতুন প্রাক্তন ছাত্র যোগ করুন
+        </button>
+      </div>
+
+      {isAdding && (
+        <div className="bg-white p-8 rounded-[2rem] shadow-xl border border-gray-100 space-y-6">
+          <div className="flex justify-between items-center">
+            <h3 className="text-xl font-bold">নতুন প্রাক্তন ছাত্র তথ্য</h3>
+            <button onClick={() => setIsAdding(false)}><X /></button>
+          </div>
+          <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-6">
+            <input 
+              placeholder="নাম" 
+              className="p-4 bg-gray-50 rounded-xl outline-none" 
+              value={formData.name} 
+              onChange={e => setFormData({...formData, name: e.target.value})}
+              required
+            />
+            <input 
+              placeholder="ব্যাচ (উদা: ২০০০)" 
+              className="p-4 bg-gray-50 rounded-xl outline-none" 
+              value={formData.batch} 
+              onChange={e => setFormData({...formData, batch: e.target.value})}
+              required
+            />
+            <input 
+              placeholder="বর্তমান পদবী/পেশা" 
+              className="p-4 bg-gray-50 rounded-xl outline-none" 
+              value={formData.designation} 
+              onChange={e => setFormData({...formData, designation: e.target.value})}
+            />
+            <input 
+              placeholder="ছবির ইউআরএল" 
+              className="p-4 bg-gray-50 rounded-xl outline-none" 
+              value={formData.image} 
+              onChange={e => setFormData({...formData, image: e.target.value})}
+            />
+            <textarea 
+              placeholder="বার্তা" 
+              className="col-span-2 p-4 bg-gray-50 rounded-xl outline-none h-24" 
+              value={formData.message} 
+              onChange={e => setFormData({...formData, message: e.target.value})}
+            />
+            <button type="submit" className="col-span-2 bg-school-secondary text-white py-4 rounded-xl font-black">সংরক্ষণ করুন</button>
+          </form>
+        </div>
+      )}
+
+      <div className="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden">
+        <table className="w-full text-left">
+          <thead className="bg-gray-50 border-b">
+            <tr>
+              <th className="p-6 font-bold">নাম</th>
+              <th className="p-6 font-bold">ব্যাচ</th>
+              <th className="p-6 font-bold">পদবী</th>
+              <th className="p-6 font-bold text-right">অ্যাকশন</th>
+            </tr>
+          </thead>
+          <tbody>
+            {alumni.map((a) => (
+              <tr key={a.id} className="border-b hover:bg-gray-50">
+                <td className="p-6 font-bold">{a.name}</td>
+                <td className="p-6">{a.batch}</td>
+                <td className="p-6">{a.designation}</td>
+                <td className="p-6 text-right space-x-4">
+                  <button onClick={() => handleDelete(a.id)} className="text-red-500"><Trash2 size={20} /></button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
+export const LinksManager = () => {
   const [links, setLinks] = useState<any[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [formData, setFormData] = useState({ name: "", url: "", order: 0 });
@@ -800,7 +899,7 @@ const LinksManager = () => {
   );
 };
 
-const SettingsManager = () => {
+export const SettingsManager = () => {
   const [config, setConfig] = useState<any>({});
   const [loading, setLoading] = useState(false);
 
